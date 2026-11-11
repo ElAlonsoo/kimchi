@@ -248,9 +248,10 @@ function render(){if(!S)return;const bots=S.bots;
   <div class="eq">${b.equity_eur.toFixed(2).replace(".",",")}<small>€ / 10 €</small></div><div class="pl ${cl(b.pnl_eur)}">${sg(b.pnl_eur)} € (${sg(b.pnl_pct,1)} %) · frais ${fe(b.fees_eur)}</div>
   <div class="rules">Mise <b>${r.size_pct}%</b> · max <b>${r.maxpos}</b> pos · stop-loss <b class="r">${r.sl_pct}%</b><br>Take-profit ${r.tp.map(x=>`<b class="g">+${x[0]}%</b>→vend ${x[1]}%`).join(" · ")}<br>Stop suiveur <b>-${r.trail_pct}%</b> dès +${r.trail_arm_pct}% · après TP1 stop au prix d'entrée · durée max ${r.tmax_min} min · pause ${r.cooldown_s/60} min</div>
   <div class="pos">${pos}</div></div>`}).join("");
- // trades
- $("tc").textContent=(S.trades||[]).length+" derniers";
- $("tb").innerHTML=(S.trades||[]).map(t=>{const b=bots.find(x=>x.name==t.bot)||{col:"#888",emoji:""};const side=t.side=="BUY"?'<b class="g">ACHAT</b>':t.side=="TP"?'<b class="y">VENTE PART.</b>':'<b class="y">VENTE</b>';
+ // trades (on cache les trades annulés / void)
+ const trs=(S.trades||[]).filter(t=>!t.void);
+ $("tc").textContent=trs.length+" derniers";
+ $("tb").innerHTML=trs.map(t=>{const b=bots.find(x=>x.name==t.bot)||{col:"#888",emoji:""};const side=t.side=="BUY"?'<b class="g">ACHAT</b>':t.side=="TP"?'<b class="y">VENTE PART.</b>':'<b class="y">VENTE</b>';
   return `<tr><td class="m">${esc((t.ts||"").slice(5,16))}</td><td style="color:${b.col}">${b.emoji} ${esc(t.bot)}</td><td>${side}</td><td>${TL(t.sym,t.mint)}</td><td>${fe(t.eur)}</td><td class="${t.pnl_eur==null?"m":cl(t.pnl_eur)}">${t.pnl_eur==null?"—":sg(t.pnl_eur)+" €"}</td><td class="why">${esc(t.reason)}</td></tr>`}).join("")||'<tr><td colspan="7" class="empty">aucun trade pour l\'instant — les bots attendent un setup de qualité</td></tr>';
  $("log").innerHTML=(S.events||[]).map(e=>`<div><span class="t">${esc((e.ts||"").slice(11))}</span> ${e.bot?`<b>${esc(e.bot)}</b> `:""}${esc(e.msg)}</div>`).join("");
  // tape
