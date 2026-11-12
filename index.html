@@ -1,5 +1,5 @@
 <!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>🤖 Grok Bot · Arène SIMULATION · 5 bots × 10 €</title>
+<title>🤖 Grok Bot · Arène SIMULATION · 5 bots × 60 €</title>
 <meta name="robots" content="noindex"><link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🤖</text></svg>">
 <style>
 @font-face{font-family:JBM;src:url(static/jbm.woff2) format("woff2");font-weight:400}
@@ -181,7 +181,7 @@ td.why{white-space:normal;color:#8c96b8;font-size:10px;max-width:340px}
 </style></head><body>
 <div class="wrap">
 <header>
- <div class="brand"><span id="mascot" style="font-size:44px">🤖</span><div><h1>🤖 Grok Bot · Arène de Trading</h1><small>5 BOTS STRATÉGIE · 10 € FICTIFS CHACUN · TEST 1 SEMAINE</small></div></div>
+ <div class="brand"><span id="mascot" style="font-size:44px">🤖</span><div><h1>🤖 Grok Bot · Arène de Trading</h1><small id="brandsub">5 BOTS STRATÉGIE · 60 € FICTIFS CHACUN · TEST JUSQU'AU 1ER JANVIER</small></div></div>
  <div class="hdr-r">
   <span class="badge sim">🟡 MODE SIMULATION · ARGENT FICTIF</span>
   <span class="badge night" id="nightb" title="Aucune nouvelle entrée de 01h00 à 08h00 (heure de Paris). Les positions ouvertes restent gérées (stop-loss, take-profit, stop suiveur).">🌙 Pause nuit 1h-8h</span>
@@ -192,7 +192,7 @@ td.why{white-space:normal;color:#8c96b8;font-size:10px;max-width:340px}
 <div class="hero">
  <div class="panel" id="balbox"><div class="lab">💰 Solde total des 5 bots (fictif)</div><div><span id="bal">—</span></div><div class="sub" id="balsub">départ : 50,00 €</div></div>
  <div class="panel"><div class="lab">📈 Gain / perte net</div><div class="v1" id="net">—</div><div class="sub" id="netp">—</div><div class="sub" id="wr">—</div></div>
- <div class="panel"><div class="lab">⏱️ Test d'une semaine</div><div class="v1" id="el">—</div><div class="sub" id="startl">départ —</div><div class="sub" id="upd">—</div><div class="srcs" id="srcs"></div></div>
+ <div class="panel"><div class="lab">⏱️ Durée du test</div><div class="v1" id="el">—</div><div class="sub" id="startl">départ —</div><div class="sub" id="upd">—</div><div class="srcs" id="srcs"></div></div>
 </div>
 <div class="mid">
  <div class="panel"><div class="ph"><span class="lab">🏁 Course des robots (capital en €)</span><div class="tf-bar" id="tfbar"><button class="tf-btn" data-tf="3600">1h</button><button class="tf-btn" data-tf="21600">6h</button><button class="tf-btn" data-tf="86400">24h</button><button class="tf-btn on" data-tf="0">Tout</button></div></div><canvas id="race"></canvas></div>
@@ -227,8 +227,9 @@ function dur(s){s=Math.max(0,Math.floor(s));const d=Math.floor(s/86400),h=Math.f
 function render(){if(!S)return;const bots=S.bots;
  const tot=S.total_eur,st=S.start_total_eur,net=tot-st;
  $("bal").innerHTML=tot.toFixed(2).replace(".",",")+"<small>€</small>";$("bal").style.color=net>=0?"":"var(--r)";
- $("balsub").textContent="départ : "+fe(st)+" · 5 bots × 10 € fictifs";
- $("net").innerHTML=`<span class="${cl(net)}">${sg(net)} €</span>`;$("netp").innerHTML=`<span class="${cl(net)}">${sg(net/st*100)} %</span> sur 50 €`;
+ const per=(bots[0]&&bots[0].start_eur)||st/Math.max(1,bots.length);
+ $("balsub").textContent="départ : "+fe(st)+" · "+bots.length+" bots × "+fe(per)+" fictifs";
+ $("net").innerHTML=`<span class="${cl(net)}">${sg(net)} €</span>`;$("netp").innerHTML=`<span class="${cl(net)}">${sg(net/st*100)} %</span> sur ${fe(st)}`;
  const W=bots.reduce((a,b)=>a+b.wins,0),L=bots.reduce((a,b)=>a+b.losses,0),op=bots.reduce((a,b)=>a+b.positions.length,0);
  $("wr").textContent=`${W+L} trades clôturés · ${W} gagnants / ${L} perdants${W+L?" ("+Math.round(W/(W+L)*100)+" %)":""} · ${op} position(s) ouverte(s)`;
  const now=S.epoch;$("el").textContent=S.start?dur(now-S.start):"—";
@@ -245,7 +246,7 @@ function render(){if(!S)return;const bots=S.bots;
   const pos=b.positions.length?b.positions.map(p=>`<div><span>${TL(p.sym,p.mint)} <span class="m">${p.dex=="pumpswap"?"swap":"courbe"} · ${Math.round(p.age_s/60)}min · reste ${p.left_pct}%</span></span><b class="${cl(p.gain_pct)}">${sg(p.gain_pct,1)}%</b></div>`).join(""):`<div class="m">aucune position · ${esc(b.status||"scan…")}</div>`;
   return `<div class="card" style="--c:${b.col}"><div class="ct"><span class="emo">${b.emoji}</span><div><div class="nm">${esc(b.name.toUpperCase())}</div><div class="st">${n} trades · ${n?b.win_rate+" % gagnants":"en attente"}</div></div></div>
   <div class="blurb">${esc(b.blurb)}</div>
-  <div class="eq">${b.equity_eur.toFixed(2).replace(".",",")}<small>€ / 10 €</small></div><div class="pl ${cl(b.pnl_eur)}">${sg(b.pnl_eur)} € (${sg(b.pnl_pct,1)} %) · frais ${fe(b.fees_eur)}</div>
+  <div class="eq">${b.equity_eur.toFixed(2).replace(".",",")}<small>€ / ${fe(b.start_eur)}</small></div><div class="pl ${cl(b.pnl_eur)}">${sg(b.pnl_eur)} € (${sg(b.pnl_pct,1)} %) · frais ${fe(b.fees_eur)}</div>
   <div class="rules">Mise <b>${r.size_pct}%</b> · max <b>${r.maxpos}</b> pos · stop-loss <b class="r">${r.sl_pct}%</b><br>Take-profit ${r.tp.map(x=>`<b class="g">+${x[0]}%</b>→vend ${x[1]}%`).join(" · ")}<br>Stop suiveur <b>-${r.trail_pct}%</b> dès +${r.trail_arm_pct}% · après TP1 stop au prix d'entrée · durée max ${r.tmax_min} min · pause ${r.cooldown_s/60} min</div>
   <div class="pos">${pos}</div></div>`}).join("");
  // trades (on cache les trades annulés / void)
@@ -261,10 +262,10 @@ function render(){if(!S)return;const bots=S.bots;
  drawRace()}
 function drawRace(){const c=$("race"),W=c.clientWidth||600,H=270,dp=window.devicePixelRatio||1;c.width=W*dp;c.height=H*dp;const g=c.getContext("2d");g.scale(dp,dp);g.clearRect(0,0,W,H);
  if(!S)return;const now=S.epoch,t0=TF?now-TF:(S.start||now-3600);const ser=S.bots.map(b=>({b,pts:(HIST[b.name]||[]).filter(p=>p[0]>=t0).concat([[now,b.equity_eur]])}));
- let lo=9.5,hi=10.5;ser.forEach(s=>s.pts.forEach(p=>{lo=Math.min(lo,p[1]);hi=Math.max(hi,p[1])}));const pad=(hi-lo)*.1;lo-=pad;hi+=pad;
+ const SB=(S.bots[0]&&S.bots[0].start_eur)||10;let lo=SB*0.95,hi=SB*1.05;ser.forEach(s=>s.pts.forEach(p=>{lo=Math.min(lo,p[1]);hi=Math.max(hi,p[1])}));const pad=(hi-lo)*.1;lo-=pad;hi+=pad;
  const X=t=>40+(t-t0)/Math.max(60,now-t0)*(W-50),Y=v=>10+(hi-v)/(hi-lo)*(H-30);
  g.strokeStyle="#1e2440";g.fillStyle="#7c86a8";g.font="10px JBM,monospace";for(let i=0;i<=4;i++){const v=lo+(hi-lo)*i/4,y=Y(v);g.beginPath();g.moveTo(40,y);g.lineTo(W-10,y);g.stroke();g.fillText(v.toFixed(2),2,y+3)}
- g.setLineDash([4,4]);g.strokeStyle="#ffd23f66";g.beginPath();g.moveTo(40,Y(10));g.lineTo(W-10,Y(10));g.stroke();g.setLineDash([]);
+ g.setLineDash([4,4]);g.strokeStyle="#ffd23f66";g.beginPath();g.moveTo(40,Y(SB));g.lineTo(W-10,Y(SB));g.stroke();g.setLineDash([]);
  ser.forEach(s=>{g.strokeStyle=s.b.col;g.lineWidth=2;g.shadowColor=s.b.col;g.shadowBlur=8;g.beginPath();s.pts.forEach((p,i)=>{const x=X(Math.max(p[0],t0)),y=Y(p[1]);i?g.lineTo(x,y):g.moveTo(x,y)});g.stroke();g.shadowBlur=0;const l=s.pts[s.pts.length-1];g.fillStyle=s.b.col;g.beginPath();g.arc(X(l[0]),Y(l[1]),3,0,7);g.fill()})}
 window.addEventListener("resize",drawRace);
 async function tick(){if(!SAME&&!API&&!BASE)await discover();
